@@ -3,12 +3,67 @@
     <div class="card col-md-12">
         <div class="card-header">Add Data</div>
         <div class="card-body">
-            <form>
+            {{#if msg}}
+                <div class="alert alert-danger">
+                    {{ msg }}
+                </div>
+            {{/if}}
+            <form method="POST" action="/upload" enctype="multipart/form-data">
                 <div class="form-group row">
                     <label for="name" class="col-sm-2 col-form-label">Full name</label>
                     <div class="col-sm-10">
-                    <input type="text" class="form-control" id="name">
+                    <input type="text" class="form-control" id="name" name="name"
+                        value="{{name}}"
+                     autocomplete="off">
                     </div>
+                </div>
+                
+                <div class="form-group row">
+                    <label for="accountNo" class="col-sm-2 col-form-label">Account Number</label>
+                    <div class="col-sm-10">
+                    <input class="form-control" value="{{accountNo}}" name="accountNo">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="mobile" class="col-sm-2 col-form-label">Mobile Number</label>
+                    <div class="col-sm-10">
+                    <input type="text" class="form-control" name="mobile" id="mobile" value="{{mobile}}" autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="signature_card" class="col-sm-2 col-form-label">Signature Card</label>
+                    <div class="col-sm-10">
+                    <input type="file" class="form-control" name="signature_card" id="signature_card">
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="photo_id" class="col-sm-2 col-form-label">Photo ID</label>
+                    <div class="col-sm-10">
+                    <input type="file" class="form-control" name="photo_id" id="photo_id">
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <label for="acc_holder_id" class="col-sm-2 col-form-label">ID Card (A/H)</label>
+                    <div class="col-sm-10">
+                    <input type="file" class="form-control" name="acc_holder_id" id="acc_holder_id">
+                    </div>
+                </div>
+                 <div class="form-group row">
+                    <label for="nomeny_holder_id" class="col-sm-2 col-form-label">ID Card (Nomeny)</label>
+                    <div class="col-sm-10">
+                    <input type="file" class="form-control" name="nomeny_holder_id" id="nomeny_holder_id">
+                    </div>
+                </div> 
+
+
+                <div class="form-group row ">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-4">
+                        <button class="btn btn-info text-center">Save Record</button>
+                    </div>
+                    <div class="col-md-4"></div>
                 </div>
             </form>
         </div>
