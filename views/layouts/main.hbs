@@ -4,10 +4,100 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mamun vai app</title>
-    <link rel="stylesheet" href="./css/bootstrap.css">
+    <link rel="stylesheet" href="./static/css/bootstrap.css">
+
+    <style>
+        img{
+            max-height: 200px;
+            min-height: 200px;
+        }
+    </style>
 </head>
 <body>
     {{>header}}
     {{{ body }}}
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <script>
+        function load(){
+        let phone  = $('#phone').val()
+        if(phone==""){
+            $("#diaplay").html(`
+                <div class="alert alert-danger">
+                    Please input a valid phone
+                </div>
+            `)
+            $("#diaplay").css({"display":"block"})
+            setTimeout(()=> {
+                 $("#diaplay").hide()
+            }, 3000)
+            return false;
+            
+        }
+        $.get(`/search/${phone}`, data => {
+            if(data.msg == null){
+                let output = ``;
+            data.data.forEach(data => {
+                output += `
+                    <div class="col-md-3">
+                        <div class="card" style="width: 18rem;">
+                        <img src="/static/uploads/${data.nomeny_holder_id}" class="card-img-top" alt="...">
+                        <div class="card-body">
+                            <h5 class="card-title">Nomeny Holder ID</h5>
+                            <a target="_blank" href="/static/uploads/${data.nomeny_holder_id}" class="btn btn-dark btn-block">Open</a>
+                        </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="card" style="width: 18rem;">
+                        <img src="/static/uploads/${data.photo_id}" class="card-img-top" alt="...">
+                        <div class="card-body">
+                            <h5 class="card-title">Photo ID</h5>
+                            <a target="_blank" href="/static/uploads/${data.photo_id}" class="btn btn-dark btn-block">Open</a>
+                        </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="card" style="width: 18rem;">
+                        <img src="/static/uploads/${data.signature_card}" class="card-img-top" alt="...">
+                        <div class="card-body">
+                            <h5 class="card-title">Signature Card</h5>
+                            <a target="_blank" href="/static/uploads/${data.signature_card}" class="btn btn-dark btn-block">Open</a>
+                        </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="card" style="width: 18rem;">
+                        <img src="/static/uploads/${data.acc_holder_id}" class="card-img-top" alt="...">
+                        <div class="card-body">
+                            <h5 class="card-title">Account Holder ID</h5>
+                            <a target="_blank" href="/static/uploads/${data.acc_holder_id}" class="btn btn-dark btn-block">Open</a>
+                        </div>
+                        </div>
+                    </div>
+                `
+                console.log(data)
+            })
+
+            $("#images").html(output)
+            }else{
+                $("#diaplay").html(`
+                <div class="alert alert-danger">
+                    ${data.msg}
+                    </div>
+                `)
+                $("#diaplay").css({"display":"block"})
+
+                setTimeout(()=> {
+                    $("#diaplay").hide()
+                }, 3000)
+            }
+        })
+    }
+    </script>
 </body>
 </html>

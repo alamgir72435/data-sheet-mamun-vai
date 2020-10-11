@@ -8,6 +8,11 @@
                     {{ msg }}
                 </div>
             {{/if}}
+            {{#if success}}
+                <div class="alert alert-success">
+                    Success : {{ success }}
+                </div>
+            {{/if}}
             <form method="POST" action="/upload" enctype="multipart/form-data">
                 <div class="form-group row">
                     <label for="name" class="col-sm-2 col-form-label">Full name</label>

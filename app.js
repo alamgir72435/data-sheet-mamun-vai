@@ -1,5 +1,4 @@
 const express = require('express');
-const mongoose= require('mongoose')
 const moment = require('moment')
 const cors   = require('cors')
 const bodyParser = require('body-parser')
@@ -8,13 +7,25 @@ const port = process.env.PORT || 5000;
 const app = express()
 var exphbs  = require('express-handlebars');
 const path = require('path')
+const mongoose = require('mongoose')
 // Middleware
 app.use(cors())
 app.use(bodyParser.urlencoded({extended:false}))
 app.use(bodyParser.json())
 app.engine('.hbs', exphbs({extname:'.hbs'}));
 app.set('view engine', '.hbs');
-app.use(express.static(path.join(__dirname, 'public')))
+app.use('/static', express.static(path.join(__dirname, 'public')))
+
+let mongoURI = 'mongodb+srv://saif:saif@cluster0.szwmr.mongodb.net/gameonacc?retryWrites=true&w=majority';
+mongoose.connect(mongoURI, {
+    useNewUrlParser:true,
+    useUnifiedTopology:true,
+    useFindAndModify:false
+}).then(data => {
+    console.log('mongodb connected on: '+data.connection.host)
+}).catch(e => console.log(e))
+
+const User = require('./models/user')
 
 
 var storage = multer.diskStorage({
@@ -43,7 +54,7 @@ app.post('/upload', upload.fields(
         { name: 'acc_holder_id', maxCount: 1 },
         { name: 'nomeny_holder_id', maxCount: 1 }
     ]
-), (req, res) => {
+), async(req, res) => {
    let file =  req.files
 
    if(req.body.name==""){
@@ -94,14 +105,55 @@ app.post('/upload', upload.fields(
         })
     }else{
         // Upload To database
-        console.log(file.signature_card)
-        console.log(file.photo_id)
-        console.log(file.acc_holder_id)
-        console.log(file.nomeny_holder_id)
-        console.log(req.body)
-        res.redirect('/')
+       
+        let userData = {
+            name:req.body.name,
+            accountNo:req.body.accountNo,
+            mobile:req.body.mobile,
+            signature_card:file.signature_card[0].filename,
+            photo_id:file.photo_id[0].filename,
+            acc_holder_id:file.acc_holder_id[0].filename,
+            nomeny_holder_id:file.nomeny_holder_id[0].filename
+        }
+
+
+       
+        try {
+             // first insert data in user
+             let user = await new User(userData).save()
+             console.log(user)
+            res.render('home', {
+                success:'Data Recored Successfully !'
+            })
+            
+        } catch (error) {
+            res.render('home', {
+                msg:'Server Error !'
+            })
+        }
+        
     }
    
+})
+
+// Search Data
+app.get('/search/:phone', async(req, res) => {
+    if(req.params.phone ==""){
+        return res.json({msg:'Please put a valid client phone number'})
+    }else{
+        try {
+            let user = await User.find({mobile:req.params.phone}).lean()
+            console.log(user)
+            if(user.length <= 0){
+                return res.json({msg:'no user found with this phone number'})
+            }else{
+                return res.json({msg:null, data:user})
+            }
+        } catch (error) {
+            return res.json({msg:'server error'})
+        }
+    }
+    
 })
 
 app.listen(port, console.log(`server running on http://localhost:${port}`))
