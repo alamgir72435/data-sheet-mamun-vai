@@ -8,6 +8,14 @@ const app = express()
 var exphbs  = require('express-handlebars');
 const path = require('path')
 const mongoose = require('mongoose')
+const flash          = require('express-flash')
+const session        = require('express-session')
+const passport       = require('passport')
+const init           = require('./config/passport');
+init(passport)
+
+
+
 // Middleware
 app.use(cors())
 app.use(bodyParser.urlencoded({extended:false}))
@@ -25,6 +33,24 @@ mongoose.connect(mongoURI, {
     console.log('mongodb connected on: '+data.connection.host)
 }).catch(e => console.log(e))
 
+
+app.use(session({
+    secret: 'posSystem',
+    resave: false,
+    saveUninitialized: true
+}))
+app.use(flash())
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+
+app.post('/login', passport.authenticate('local', {
+    successRedirect:'/home',
+    failureRedirect:'/',
+    failureFlash:true
+}))
+
 const User = require('./models/user')
 
 
@@ -36,12 +62,41 @@ var storage = multer.diskStorage({
         cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
     }
 })
+// AUth Guard
+const checkAuth = (req, res, next) => {
+    if(req.isAuthenticated()){
+        next()
+    }else{
+        res.redirect("/");
+    }
+}
+const checkNotAuth = (req, res, next) => {
+    if(!req.isAuthenticated()){
+        next()
+    }else{
+        res.redirect("/home");
+    }
+}
+
+
+
 
 var upload = multer({storage:storage})
 
-app.get('/', (req, res) => {
+app.get('/',checkNotAuth,  (req, res) => {
+    res.render('login', {layout:'login'})
+})
+
+app.get('/home',checkAuth, (req, res) => {
     res.render('home')
 })
+
+app.get('/user/logout', (req,res) => {
+    req.logout()
+    res.redirect('/')
+})
+
+
 
 app.get('/data', (req, res) => {
     res.render('data')
